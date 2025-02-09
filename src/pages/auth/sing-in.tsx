@@ -1,3 +1,8 @@
 export function SingIn() {
-  return <div>SingIn</div>
+  return (
+    <>
+      <title>Login | pizza.shop</title>
+      <h1>Sing-In</h1>
+    </>
+  )
 }
