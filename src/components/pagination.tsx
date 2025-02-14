@@ -22,10 +22,12 @@ export function Paganation({
 
   return (
     <div className="flex items-center justify-between">
-      <span>Total de {totalCount} item(s)</span>
+      <span className="text-sm text-muted-foreground">
+        Total de {totalCount} item(s)
+      </span>
 
       <div className="flex items-center gap-2">
-        <div>
+        <div className="text-sm font-medium">
           Página {pageIndex + 1} de {pages}
         </div>
         <div className="flex items-center gap-2">
