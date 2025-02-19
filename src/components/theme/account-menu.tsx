@@ -1,9 +1,14 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Building, ChevronDown, LogOut } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
+import { getManagedRestaurant } from '@/api/get-managed-restaurant'
 import { getProfile } from '@/api/get-profile'
+import { SignOut } from '@/api/sign-out'
 
+import { StoreProfileDialog } from '../store-profile-dialog'
 import { Button } from '../ui/button'
+import { Dialog, DialogTrigger } from '../ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,40 +17,82 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
+import { Skeleton } from '../ui/skeleton'
 
 export function AccountMenu() {
-  const { data: profile } = useQuery({
+  const navigate = useNavigate()
+  const { data: profile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ['profile'],
     queryFn: getProfile,
+    staleTime: Infinity,
   })
+
+  const { data: managedRestaurant, isLoading: isLoadingManagedRestaurant } =
+    useQuery({
+      queryKey: ['managed-restaurant'],
+      queryFn: getManagedRestaurant,
+      staleTime: Infinity,
+    })
+
+  const { mutateAsync: signOutFn, isPending: isSigninOut } = useMutation({
+    mutationFn: SignOut,
+    onSuccess: () => {
+      navigate('/sign-in', { replace: true })
+    },
+  })
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant={'outline'}
-          className="flex select-none items-center gap-2"
-        >
-          {profile?.name}
-          <ChevronDown className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="flex flex-col">
-          <span>Pablo Rafael</span>
-          <span className="text-xs font-normal text-muted-foreground">
-            developer.test@email.com
-          </span>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <Building className="mr-2 h-4 w-4" />
-            <span>Perfil da loja</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="text-rose-500 dark:text-rose-400">
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Sair</span>
-          </DropdownMenuItem>
-        </DropdownMenuLabel>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Dialog>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant={'outline'}
+            className="flex select-none items-center gap-2"
+          >
+            {isLoadingManagedRestaurant ? (
+              <Skeleton className="h-4 w-40" />
+            ) : (
+              managedRestaurant?.name
+            )}
+            <ChevronDown className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuLabel className="flex flex-col">
+            {isLoadingProfile ? (
+              <div className="space-y-1.5">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            ) : (
+              <>
+                <span>{profile?.name}</span>
+                <span className="text-xs font-normal text-muted-foreground">
+                  {profile?.email}
+                </span>
+              </>
+            )}
+            <DropdownMenuSeparator />
+            <DialogTrigger asChild>
+              <DropdownMenuItem>
+                <Building className="mr-2 h-4 w-4" />
+                <span>Perfil da loja</span>
+              </DropdownMenuItem>
+            </DialogTrigger>
+            <DropdownMenuItem
+              className="text-rose-500 dark:text-rose-400"
+              asChild
+              disabled={isSigninOut}
+            >
+              <button className="w-full" onClick={() => signOutFn()}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sair</span>
+              </button>
+            </DropdownMenuItem>
+          </DropdownMenuLabel>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <StoreProfileDialog />
+    </Dialog>
   )
 }
