@@ -6,8 +6,10 @@ export interface GetMonthOrdersAmountResponse {
 }
 export async function getMonthOrdersAmount() {
   const response = await api.get<GetMonthOrdersAmountResponse>(
-    '/metrics/month-orders-amount ',
+    '/metrics/month-orders-amount',
   )
+
+  console.log(response)
 
   return response.data
 }
