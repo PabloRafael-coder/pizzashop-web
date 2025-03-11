@@ -8,7 +8,7 @@ import {
   getManagedRestaurant,
   type GetManagedRestaurantResponse,
 } from '@/api/get-managed-restaurant'
-import { UpdateProfile } from '@/api/update-profile'
+import { updateProfile } from '@/api/update-profile'
 
 import { Button } from './ui/button'
 import {
@@ -74,7 +74,7 @@ export function StoreProfileDialog() {
   }
 
   const { mutateAsync: updateProfileFn } = useMutation({
-    mutationFn: UpdateProfile,
+    mutationFn: updateProfile,
     onMutate({ name, description }) {
       const { cached } = updateManagedRestaurantCache({ name, description })
 
